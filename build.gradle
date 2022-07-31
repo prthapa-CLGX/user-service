@@ -1,0 +1,100 @@
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
+buildscript {
+	repositories {
+		maven {
+			url "https://plugins.gradle.org/m2/"
+		}
+	}
+	dependencies {
+		classpath "com.palantir.gradle.docker:gradle-docker:0.34.0"
+		classpath "com.palantir.gradle.docker:gradle-docker:0.34.0"
+	}
+}
+
+
+plugins {
+	id 'org.springframework.boot' version '2.7.1'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id "org.liquibase.gradle" version "2.1.1"
+	id 'java'
+	id "com.palantir.docker" version "0.34.0"
+}
+
+
+
+group = 'com.poc'
+version = '0.0.1'
+sourceCompatibility = '11'
+archivesBaseName = 'user-service'
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	set('springCloudVersion', "2021.0.3")
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+	implementation 'org.postgresql:postgresql:42.3.6'
+	implementation 'junit:junit:4.13.1'
+	liquibaseRuntime 'org.liquibase:liquibase-core:4.11.0'
+	liquibaseRuntime 'org.postgresql:postgresql'
+	liquibaseRuntime 'info.picocli:picocli:4.6.3'
+	liquibaseRuntime 'org.yaml:snakeyaml:1.30'
+
+	implementation 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok:1.18.24'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.assertj:assertj-core:3.23.1'
+
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+	testLogging {
+		events TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED
+	}
+}
+
+liquibase {
+	activities {
+		main {
+			changeLogfile 'src/main/resources/db/changelog/db.changelog-master.yaml'
+			url 'jdbc:postgresql://localhost:7654/user_db'
+			username 'robot'
+			password 'robotpass'
+
+		}
+	}
+}
+
+docker {
+	name "localhost:5000/${project.name}:${project.version}"
+	files "build/libs/user-service-${project.version}.jar"
+	tag "latest", "localhost:5000/${project.name}:latest"
+}
+
+task db() {
+	doFirst() {
+		liquibaseDropAll
+	}
+}
+
+tasks.dockerPrepare.configure {
+	dependsOn(tasks.bootJar.name)
+}
+
+liquibaseUpdate.dependsOn db
+build.dependsOn liquibaseUpdate

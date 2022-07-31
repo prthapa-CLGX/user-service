@@ -1,0 +1,60 @@
+databaseChangeLog:
+  - preConditions:
+      - runningAs:
+          username: robot
+  - changeSet:
+      id: 1
+      author: Robot
+      changes:
+        - sql:
+            sql: DROP TABLE IF EXISTS "user"
+        - createTable:
+            tableName: user_table
+            columns:
+              - column:
+                  name: user_id
+                  type: int
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(50)
+              - column:
+                  name: job
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 2
+      author: Robot
+      changes:
+        - insert:
+            tableName: user_table
+            columns:
+              - column:
+                  name: user_id
+                  value: 1
+              - column:
+                  name: name
+                  value: "Alex Robinson"
+              - column:
+                  name: job
+                  value: "CEO"
+  - changeSet:
+      id: 3
+      author: Robot
+      changes:
+        - insert:
+            tableName: user_table
+            columns:
+              - column:
+                  name: user_id
+                  value: 2
+              - column:
+                  name: name
+                  value: "John Barnett"
+              - column:
+                  name: job
+                  value: "Software Developer"
