@@ -82,7 +82,7 @@ liquibase {
 
 docker {
 	name "localhost:5000/${project.name}:${project.version}"
-	files "build/libs/user-service-${project.version}.jar"
+	files "build/libs/${project.name}-${project.version}.jar"
 	tag "latest", "localhost:5000/${project.name}:latest"
 }
 
