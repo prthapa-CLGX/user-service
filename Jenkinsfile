@@ -31,7 +31,7 @@ node {
            sh('echo cleaning up tasks......')
             version = sh(script: "./gradlew properties -q | grep \"version:\" | awk '{print \$2}'", returnStdout: true).trim()
             serviceName = sh(script: "./gradlew properties -q | grep \"archivesBaseName:\" | awk '{print \$2}'", returnStdout: true).trim()
-            sh "echo If Build Fail: ***** Service: $serviceName Version: $version build was unsuccessful ***** Sending email .............")
+            sh "echo If Build Fail: ***** Service: $serviceName Version: $version build was unsuccessful ***** Sending email ............."
            //mail to: "me@testemail.com"
       }
     }
