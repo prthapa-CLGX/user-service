@@ -1,7 +1,7 @@
 node {
     try {
         def serviceName = ""
-        def version = ""
+		def version = ""
         stage('SCM Checkout') {
             checkout([$class: 'GitSCM',
                branches: [[name: env.BRANCH_NAME]],
